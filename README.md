@@ -35,8 +35,12 @@ employee-attrition-p/
 │   └── workflows/
 │       └── pipeline.yml
 ├── configs/
-│   └── config.yaml
-├── data/ 
+│   ├── config.yaml              # Baseline: RandomForest (100 estimators)
+│   ├── config_rf_200.yaml       # RandomForest (200 estimators, depth 15)
+│   ├── config_gb.yaml           # GradientBoostingClassifier
+│   ├── config_lr.yaml           # LogisticRegression
+│   └── config_dt.yaml           # DecisionTreeClassifier
+├── data/
 ├── models/
 ├── reports/
 ├── src/
@@ -44,6 +48,7 @@ employee-attrition-p/
 │   ├── drift_monitoring.py
 │   ├── evaluate.py
 │   ├── preprocess.py
+│   ├── run_experiments.py
 │   └── train.py
 ├── tests/
 │   └── test_suite.py
@@ -51,6 +56,7 @@ employee-attrition-p/
 ├── README.md
 └── requirements.txt
 ```
+
 > **Note:**
 > - `data/`, `models/`, and `reports/` are intentionally empty in the repository.
 > - `data/` is managed by DVC — run `dvc pull` to download the dataset after cloning.
@@ -121,6 +127,11 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
+> **Windows note:** `mlflow ui` uses `gunicorn` to serve the experiment browser,
+> which is not available on Windows. To view MLflow results on Windows, either use
+> [WSL](https://learn.microsoft.com/en-us/windows/wsl/) or open the `mlruns/`
+> folder directly — each run's metrics and params are stored as plain text files.
+
 ### Retrieve the Dataset
 
 ```bash
@@ -137,17 +148,41 @@ pytest tests/ -v
 
 ### Train the Model
 
+Run a single experiment:
+
 ```bash
 python src/train.py configs/config.yaml
 ```
 
+Or run all five experiments in sequence:
+
+```bash
+python src/run_experiments.py
+```
+
 Training automatically:
 
-* Loads configuration values from `config.yaml`
+* Loads configuration values from the config file
 * Trains the selected model
 * Logs parameters and metrics to MLflow
 * Saves model artifacts
 * Enforces minimum performance thresholds
+
+---
+
+## Experiments
+
+Five experiments with different model configurations were tracked in MLflow:
+
+| Run | Config | Model | Key Settings |
+|-----|--------|-------|--------------|
+| 1 | `config.yaml` | RandomForestClassifier | 100 estimators, depth 10 |
+| 2 | `config_rf_200.yaml` | RandomForestClassifier | 200 estimators, depth 15 |
+| 3 | `config_gb.yaml` | GradientBoostingClassifier | 100 estimators, lr 0.1 |
+| 4 | `config_lr.yaml` | LogisticRegression | C=1.0, balanced weights |
+| 5 | `config_dt.yaml` | DecisionTreeClassifier | depth 5, balanced weights |
+
+The best run is identified automatically by `compare_experiments.py`.
 
 ---
 
@@ -179,13 +214,17 @@ The script ranks runs and identifies the best-performing model based on the sele
 
 ## Configuration
 
-All project settings are managed through:
+All project settings are managed through the `configs/` directory:
 
-```text
-configs/config.yaml
-```
+| Config file | Model |
+|---|---|
+| `config.yaml` | RandomForestClassifier (baseline) |
+| `config_rf_200.yaml` | RandomForestClassifier (200 estimators) |
+| `config_gb.yaml` | GradientBoostingClassifier |
+| `config_lr.yaml` | LogisticRegression |
+| `config_dt.yaml` | DecisionTreeClassifier |
 
-This includes:
+Each config file contains:
 
 | Section      | Purpose                               |
 | ------------ | ------------------------------------- |
@@ -196,7 +235,7 @@ This includes:
 | `thresholds` | Minimum performance requirements      |
 | `output`     | Saved model and report locations      |
 
-Because configuration is separated from code, experiments can be repeated simply by changing values in `config.yaml`.
+Because configuration is separated from code, experiments can be repeated simply by changing values in a config file.
 
 ---
 
