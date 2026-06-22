@@ -1,0 +1,76 @@
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Environment variables and secrets (never commit these)
+# *.env matches: .env, production.env, secrets.env
+*.env
+# .env.* matches: .env.local, .env.production
+.env.*
+
+# Virtual environments
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Data files (tracked by DVC, not Git)
+data/*.csv
+data/*.tsv
+data/*.parquet
+data/*.json
+!data/*.dvc
+!data/.gitignore
+
+# Model artifacts (ignore generated files, keep directory via .gitkeep)
+models/**/*.pkl
+models/**/*.joblib
+models/**/*.h5
+models/**/*.pt
+models/**/*.onnx
+
+# MLflow runs
+mlruns/
+
+# Reports (generated at runtime)
+# Ignore generated files in all directories while keeping .gitkeep files.
+reports/**/*.html
+reports/**/*.json
+reports/**/*.csv
+reports/**/*.parquet
+
+# DVC internal files (excluded from Git)
+.dvc/cache/
+.dvc/tmp/
+# .dvc/cache_remote/ is tracked in Git so dvc pull can work immediately
+# after a fresh clone, even without a configured cloud remote.
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/

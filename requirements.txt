@@ -1,0 +1,23 @@
+# Core data science
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.5.0
+scipy==1.17.1
+
+# Configuration
+PyYAML==6.0.1
+
+# Experiment tracking
+mlflow==2.13.1
+
+# Drift monitoring
+evidently==0.4.30
+
+# Version control for data
+dvc==3.50.2
+
+# Testing
+pytest==8.2.2
+
+# Utilities
+joblib==1.4.2
