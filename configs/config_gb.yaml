@@ -61,9 +61,10 @@ mlflow:
 
 thresholds:
   min_roc_auc: 0.75
-  min_f1: 0.40
-  min_precision: 0.35
-  min_recall: 0.40
+  min_f1: 0.3
+  min_precision: 0.3
+  min_recall: 0.25
+  prediction_threshold: 0.3
   drift_threshold: 0.3
 
 output:

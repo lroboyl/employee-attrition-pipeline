@@ -4,7 +4,7 @@ data:
   test_size: 0.2
   random_state: 42
   dvc_version: "v1.0"
- 
+
 features:
   categorical:
     - BusinessTravel
@@ -44,7 +44,7 @@ features:
     - Over18
     - StandardHours
   target: Attrition
- 
+
 model:
   type: "RandomForestClassifier"
   n_estimators: 100
@@ -53,18 +53,19 @@ model:
   min_samples_leaf: 2
   class_weight: "balanced"
   random_state: 42
- 
+
 mlflow:
   experiment_name: "hr-attrition-prediction"
   tracking_uri: "sqlite:///mlruns.db"
- 
+
 thresholds:
   min_roc_auc: 0.75
-  min_f1: 0.40
+  min_f1: 0.45
   min_precision: 0.35
-  min_recall: 0.40
+  min_recall: 0.55
+  prediction_threshold: 0.3
   drift_threshold: 0.3
- 
+
 output:
   model_path: "models/best_model"
   reports_path: "reports/"

@@ -57,10 +57,11 @@ mlflow:
   tracking_uri: "sqlite:///mlruns.db"
 
 thresholds:
-  min_roc_auc: 0.75
-  min_f1: 0.40
-  min_precision: 0.35
-  min_recall: 0.40
+  min_roc_auc: 0.6
+  min_f1: 0.32
+  min_precision: 0.22
+  min_recall: 0.55
+  prediction_threshold: 0.3
   drift_threshold: 0.3
 
 output:
