@@ -1,4 +1,4 @@
-name: MLOps IBM Attrition Pipeline]
+name: MLOps IBM Attrition Pipeline
 
 on:
   push:
