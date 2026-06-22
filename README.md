@@ -43,6 +43,8 @@ employee-attrition-p/
 ├── data/
 ├── models/
 ├── reports/
+├── scripts/
+│   └── restore_data.py
 ├── src/
 │   ├── compare_experiments.py
 │   ├── drift_monitoring.py
@@ -59,7 +61,7 @@ employee-attrition-p/
 
 > **Note:**
 > - `data/`, `models/`, and `reports/` are intentionally empty in the repository.
-> - `data/` is managed by DVC — run `dvc pull` to download the dataset after cloning.
+> - `data/` is managed by DVC — run `python scripts/restore_data.py` to restore the dataset after cloning.
 > - `models/` and `reports/` are populated at runtime by the training and drift monitoring scripts.
 
 ---
@@ -135,10 +137,16 @@ pip install -r requirements.txt
 ### Retrieve the Dataset
 
 ```bash
-dvc pull
+python scripts/restore_data.py
 ```
 
-The dataset is stored with DVC and is not committed directly to Git.
+The dataset is tracked with DVC. The DVC cache is committed to the repository under `.dvc/cache_remote/`, so no external remote or credentials are needed. The restore script reads the `.dvc` pointer file and copies the CSV into `data/` directly from the cache.
+
+Alternatively, if you have DVC configured locally:
+
+```bash
+dvc pull
+```
 
 ### Run Tests
 
@@ -241,12 +249,12 @@ Because configuration is separated from code, experiments can be repeated simply
 
 ## CI/CD Pipeline
 
-GitHub Actions automatically runs the machine learning pipeline on every push and pull request.
+GitHub Actions automatically runs the machine learning pipeline on every push, pull request, or manual trigger.
 
 ### Test Stage
 
 * Install dependencies
-* Pull dataset using DVC
+* Restore dataset from committed DVC cache using `scripts/restore_data.py`
 * Run Pytest test suite
 
 ### Training Stage
