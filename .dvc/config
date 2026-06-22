@@ -1,4 +1,6 @@
 [core]
-    remote = myremote
+    remote = local_remote
 ['remote "myremote"']
     url = /tmp/dvcstore
+['remote "local_remote"']
+    url = cache_remote
