@@ -1,10 +1,11 @@
-name: MLOps IBM Attrition Pipeline
+name: MLOps IBM Attrition Pipeline]
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 env:
   PYTHONPATH: src
@@ -36,23 +37,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install "pathspec==0.12.1" --force-reinstall
 
-      - name: Restore DVC cache
-        uses: actions/cache@v4
-        with:
-          path: .dvc/cache
-          key: dvc-${{ hashFiles('data/*.dvc') }}
-
-      - name: Pull data with DVC
-        # Local remote is committed to the repo under .dvc/cache_remote/.
-        # To migrate to a cloud remote (e.g. S3), replace with:
-        #
-        #   env:
-        #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        #   run: dvc pull
-        run: dvc pull
+      - name: Restore dataset from DVC cache
+        # The DVC remote cache is committed to the repo under .dvc/cache_remote/.
+        # We copy the file directly rather than using dvc pull to avoid pathspec
+        # version compatibility issues in CI.
+        run: |
+          python scripts/restore_data.py
 
       - name: Run pytest
         run: |
@@ -85,16 +76,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install "pathspec==0.12.1" --force-reinstall
 
-      - name: Restore DVC cache
-        uses: actions/cache@v4
-        with:
-          path: .dvc/cache
-          key: dvc-${{ hashFiles('data/*.dvc') }}
-
-      - name: Pull data with DVC
-        run: dvc pull
+      - name: Restore dataset from DVC cache
+        run: |
+          python scripts/restore_data.py
 
       - name: Train model and verify performance thresholds
         # train.py exits with code 1 if any threshold in config.yaml is not met
