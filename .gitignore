@@ -42,6 +42,7 @@ models/**/*.onnx
 # MLflow runs
 mlruns/
 mlruns.db
+mlflow.db
 
 # Reports (generated at runtime)
 # Ignore generated files in all directories while keeping .gitkeep files.
