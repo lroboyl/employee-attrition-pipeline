@@ -57,7 +57,7 @@ model:
 
 mlflow:
   experiment_name: "hr-attrition-prediction"
-  tracking_uri: "mlruns"
+  tracking_uri: "sqlite:///mlruns.db"
 
 thresholds:
   min_roc_auc: 0.75
