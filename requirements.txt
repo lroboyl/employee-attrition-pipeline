@@ -14,7 +14,7 @@ mlflow==3.13.0
 evidently==0.4.30
 
 # Version control for data
-dvc==3.50.2
+dvc==3.67.1
 pathspec==0.12.1
 
 # Testing
