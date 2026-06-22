@@ -74,4 +74,4 @@ Thumbs.db
 # Coverage
 .coverage
 htmlcov/
-.pytest_cache/
+.pytest_cache/mlflow.db
