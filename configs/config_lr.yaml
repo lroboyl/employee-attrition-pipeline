@@ -1,0 +1,68 @@
+data:
+  raw_path: "data/WA_Fn-UseC_-HR-Employee-Attrition.csv"
+  processed_path: "data/processed/"
+  test_size: 0.2
+  random_state: 42
+  dvc_version: "v1.0"
+
+features:
+  categorical:
+    - BusinessTravel
+    - Department
+    - EducationField
+    - Gender
+    - JobRole
+    - MaritalStatus
+    - OverTime
+  numeric:
+    - Age
+    - DailyRate
+    - DistanceFromHome
+    - Education
+    - EnvironmentSatisfaction
+    - HourlyRate
+    - JobInvolvement
+    - JobLevel
+    - JobSatisfaction
+    - MonthlyIncome
+    - MonthlyRate
+    - NumCompaniesWorked
+    - PercentSalaryHike
+    - PerformanceRating
+    - RelationshipSatisfaction
+    - StockOptionLevel
+    - TotalWorkingYears
+    - TrainingTimesLastYear
+    - WorkLifeBalance
+    - YearsAtCompany
+    - YearsInCurrentRole
+    - YearsSinceLastPromotion
+    - YearsWithCurrManager
+  drop:
+    - EmployeeCount
+    - EmployeeNumber
+    - Over18
+    - StandardHours
+  target: Attrition
+
+model:
+  type: "LogisticRegression"
+  C: 1.0
+  class_weight: "balanced"
+  random_state: 42
+  max_iter: 1000
+
+mlflow:
+  experiment_name: "hr-attrition-prediction"
+  tracking_uri: "mlruns"
+
+thresholds:
+  min_roc_auc: 0.75
+  min_f1: 0.40
+  min_precision: 0.35
+  min_recall: 0.40
+  drift_threshold: 0.3
+
+output:
+  model_path: "models/best_model"
+  reports_path: "reports/"
