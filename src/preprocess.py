@@ -24,7 +24,7 @@ def load_config(config_path: str = "configs/config.yaml") -> dict:
 
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     raw_uri = config.get("mlflow", {}).get("tracking_uri", "mlruns")
-    if not os.path.isabs(raw_uri):
+    if not os.path.isabs(raw_uri) and "://" not in raw_uri:
         config.setdefault("mlflow", {})["tracking_uri"] = os.path.join(project_root, raw_uri)
  
     return config

@@ -123,6 +123,7 @@ def train(
             "test_size":         config["data"]["test_size"],
             "random_state":      config["data"]["random_state"],
             "data_version":      config["data"].get("dvc_version", "unknown"),
+            "prediction_threshold": config.get("thresholds", {}).get("prediction_threshold", 0.5),
         })
 
         print(f"Loading data from: {config['data']['raw_path']}")
@@ -141,7 +142,8 @@ def train(
         print(f"Training {m['type']}...")
         model.fit(X_train, y_train)
 
-        metrics = print_evaluation_report(model, X_test, y_test)
+        threshold = config.get("thresholds", {}).get("prediction_threshold", 0.5)
+        metrics = print_evaluation_report(model, X_test, y_test, threshold=threshold)
 
         mlflow.log_metrics({
             "roc_auc":   metrics["roc_auc"],
