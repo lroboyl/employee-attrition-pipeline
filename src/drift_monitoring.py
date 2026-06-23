@@ -174,10 +174,14 @@ def run_drift_detection(
                 drift_share = value.get("share", 0.0)
 
             # Per-column drift from ValueDrift(column=...)
+            # value is a float (the test statistic/p-value), not a dict
+            # drift is detected when value < threshold in the config
             if metric_name.startswith("ValueDrift(column="):
-                col_name = metric.get("config", {}).get("column_name", "unknown")
-                drift_detected = value.get("drift_detected", False)
-                drift_score = value.get("drift_score", None)
+                config_data = metric.get("config", {})
+                col_name = config_data.get("column", "unknown")
+                threshold = config_data.get("threshold", 0.05)
+                drift_score = float(value) if value is not None else None
+                drift_detected = drift_score is not None and drift_score < threshold
                 if drift_detected:
                     drifted_features.append({
                         "feature": col_name,
