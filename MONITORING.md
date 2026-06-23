@@ -6,9 +6,9 @@ This document summarizes the results of drift detection for the HR Attrition mod
 
 The drift monitoring script (`src/monitor_drift.py`) compares the original training data (reference dataset) against a simulated production dataset using Evidently.
 
-**Reference dataset:** 80% of the IBM HR Analytics dataset created using `train_test_split` (the same split used for model training).
+**Reference dataset:** 70% of the IBM HR Analytics dataset created using `train_test_split` (the same split used for model training).
 
-**Production dataset:** The remaining 20% of records (~294 employees) with synthetic drift injected into six important features.
+**Production dataset:** The remaining 30% of records (~441 employees) with synthetic drift injected into six important features.
 
 | Feature            | Drift Applied                                                 |
 | ------------------ | ------------------------------------------------------------- |
@@ -23,9 +23,11 @@ The drift monitoring script (`src/monitor_drift.py`) compares the original train
 
 ## Q1: Which features showed drift and why?
 
-The following features were intentionally modified and are expected to show statistically significant drift.
+The drift monitoring script detected **15 out of 30 features drifted (50% overall drift share)**.
 
-### High-Drift Features
+The following features were intentionally modified and showed statistically significant drift.
+
+### High-Drift Features (p-value < 0.0001)
 
 #### `Age`
 
@@ -43,15 +45,17 @@ Adding exponential growth increases the number of employees with longer commutes
 
 Reducing tenure by approximately two years simulates a labor market with increased employee turnover. Since tenure is a highly predictive feature, drift in this variable is especially important to monitor.
 
-### Moderate-Drift Features
-
 #### `WorkLifeBalance`
 
-The distribution is shifted toward lower ratings (1 and 2), representing increased employee burnout. Whether this exceeds drift thresholds depends on the statistical test being used.
+The distribution is shifted toward lower ratings (1 and 2), representing increased employee burnout. The shift was strong enough to produce a near-zero p-value.
 
 #### `OverTime`
 
-Increasing the proportion of employees working overtime changes the distribution of this binary feature. Because `OverTime` is a strong attrition predictor, even moderate drift may influence model behavior.
+Increasing the proportion of employees working overtime changes the distribution of this binary feature significantly. Because `OverTime` is a strong attrition predictor, even moderate drift may influence model behavior.
+
+### Unexpected Features That Also Drifted
+
+Nine additional features showed statistically significant drift that was not directly injected — including `MaritalStatus`, `NumCompaniesWorked`, `JobRole`, `Education`, `EducationField`, `StockOptionLevel`, `JobInvolvement`, `TrainingTimesLastYear`, and `PercentSalaryHike`. These likely reflect correlations with the injected features (for example, income correlates with job level and education) or natural sampling variation in the 30% holdout split.
 
 ---
 
