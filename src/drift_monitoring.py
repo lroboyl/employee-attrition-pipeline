@@ -173,8 +173,8 @@ def run_drift_detection(
             if "DriftedColumnsCount" in metric_name:
                 drift_share = value.get("share", 0.0)
 
-            # Per-column drift from ColumnValueDrift
-            if "ColumnValueDrift" in metric_name:
+            # Per-column drift from ValueDrift(column=...)
+            if metric_name.startswith("ValueDrift(column="):
                 col_name = metric.get("config", {}).get("column_name", "unknown")
                 drift_detected = value.get("drift_detected", False)
                 drift_score = value.get("drift_score", None)
