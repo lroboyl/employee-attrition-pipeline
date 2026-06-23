@@ -217,7 +217,12 @@ def log_drift_summary(drift_results: dict) -> None:
             reverse=True,
         ):
             score = feat["drift_score"]
-            score_str = f"{score:.4f}" if score is not None else "N/A"
+            if score is None:
+                score_str = "N/A"
+            elif score < 0.0001:
+                score_str = "<0.0001"
+            else:
+                score_str = f"{score:.4f}"
             logger.warning("  %-35s  drift_score=%s", feat["feature"], score_str)
     else:
         logger.info("No individual feature drift detected.")
