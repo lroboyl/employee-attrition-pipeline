@@ -11,7 +11,7 @@ PyYAML==6.0.1
 mlflow==3.13.0
 
 # Drift monitoring
-evidently==0.4.30
+evidently==0.7.21
 
 # Version control for data
 dvc==3.67.1
