@@ -17,8 +17,8 @@ import numpy as np
 from datetime import datetime
 from sklearn.model_selection import train_test_split
 
-from evidently.report import Report
-from evidently.metric_preset import DataDriftPreset
+from evidently import Report
+from evidently.presets import DataDriftPreset
 
 logging.basicConfig(
     level=logging.INFO,
@@ -140,14 +140,14 @@ def run_drift_detection(
     logger.info("  Reference rows: %d", len(ref_features))
     logger.info("  Production rows: %d", len(prod_features))
  
-    report = Report(metrics=[DataDriftPreset()])
-    report.run(reference_data=ref_features, current_data=prod_features)
+    report = Report([DataDriftPreset()])
+    result = report.run(ref_features, prod_features)
  
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     report_path = os.path.join(output_dir, f"drift_report_{timestamp}.html")
-    report.save_html(report_path)
+    result.save_html(report_path)
     logger.info("Drift report saved to: %s", report_path)
- 
+
     # Keeping only the most recent keep_last_n
     existing_reports = sorted(glob.glob(os.path.join(output_dir, "drift_report_*.html")))
     for old_report in existing_reports[:-keep_last_n]:
@@ -155,34 +155,40 @@ def run_drift_detection(
         logger.info("Removed old report: %s", old_report)
  
     #Analyze results 
-    result_dict = report.as_dict()
-    metrics_results = result_dict.get("metrics", [])
+    result_dict = result.dict()
  
     drifted_features = []
     total_features = 0
     drift_share = 0.0
 
-    for metric_result in metrics_results:
-        if metric_result.get("metric") == "ColumnDriftMetric":
-            result_val = metric_result.get("result", {})
-            total_features += 1
-            if result_val.get("drift_detected", False):
-                drifted_features.append({
-                    "feature":    result_val.get("column_name", "unknown"),
-                    "drift_score": result_val.get("drift_score"),
-                    "is_drifted": True,
-                })
+    try:
+        # 0.7.x stores results under 'metrics' as a list of dicts
+        metrics = result_dict.get("metrics", [])
+        for metric in metrics:
+            metric_id = str(metric.get("metric_id", ""))
+            value = metric.get("value", {})
  
-        if metric_result.get("metric") == "DatasetDriftMetric":
-            result_val = metric_result.get("result", {})
-            drift_share = result_val.get("drift_share", 0.0)
-            total_features = result_val.get("number_of_columns", total_features)
-
+            if "DatasetDriftMetric" in metric_id or "dataset_drift" in str(value):
+                drift_share = value.get("drift_share", drift_share)
+                total_features = value.get("number_of_drifted_columns", 0) + value.get("number_of_not_drifted_columns", total_features)
+ 
+            if "ColumnDriftMetric" in metric_id:
+                total_features += 1
+                if value.get("drift_detected", False):
+                    drifted_features.append({
+                        "feature": value.get("column_name", "unknown"),
+                        "drift_score": value.get("drift_score"),
+                        "is_drifted": True,
+                    })
+    except Exception as e:
+        logger.warning("Could not parse drift results dict: %s", e)
+        logger.warning("Check the HTML report for full results: %s", report_path)
+ 
     return {
         "drifted_features": drifted_features,
-        "total_features": total_features,
-        "drift_share": drift_share,
-        "report_path": report_path,
+        "total_features":   total_features,
+        "drift_share":      drift_share,
+        "report_path":      report_path,
     }
 
 
