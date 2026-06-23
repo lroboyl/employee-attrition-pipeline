@@ -53,7 +53,7 @@ employee-attrition-p/
 │   ├── run_experiments.py
 │   └── train.py
 ├── tests/
-│   └── test_suite.py
+│   └── test_pipeline.py
 ├── MONITORING.md
 ├── README.md
 └── requirements.txt
