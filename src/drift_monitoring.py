@@ -154,30 +154,34 @@ def run_drift_detection(
         os.remove(old_report)
         logger.info("Removed old report: %s", old_report)
  
-    #Analyze results 
+    # Parse results using the evidently 0.7.x dict structure:
+    # DriftedColumnsCount gives overall drift share and count
+    # ColumnValueDrift gives per-column drift detection
     result_dict = result.dict()
  
     drifted_features = []
-    total_features = 0
+    total_features = len(common_cols)
     drift_share = 0.0
 
     try:
-        # 0.7.x stores results under 'metrics' as a list of dicts
         metrics = result_dict.get("metrics", [])
         for metric in metrics:
-            metric_id = str(metric.get("metric_id", ""))
+            metric_name = metric.get("metric_name", "")
             value = metric.get("value", {})
- 
-            if "DatasetDriftMetric" in metric_id or "dataset_drift" in str(value):
-                drift_share = value.get("drift_share", drift_share)
-                total_features = value.get("number_of_drifted_columns", 0) + value.get("number_of_not_drifted_columns", total_features)
- 
-            if "ColumnDriftMetric" in metric_id:
-                total_features += 1
-                if value.get("drift_detected", False):
+
+            # Overall drift share from DriftedColumnsCount
+            if "DriftedColumnsCount" in metric_name:
+                drift_share = value.get("share", 0.0)
+
+            # Per-column drift from ColumnValueDrift
+            if "ColumnValueDrift" in metric_name:
+                col_name = metric.get("config", {}).get("column_name", "unknown")
+                drift_detected = value.get("drift_detected", False)
+                drift_score = value.get("drift_score", None)
+                if drift_detected:
                     drifted_features.append({
-                        "feature": value.get("column_name", "unknown"),
-                        "drift_score": value.get("drift_score"),
+                        "feature": col_name,
+                        "drift_score": drift_score,
                         "is_drifted": True,
                     })
     except Exception as e:
