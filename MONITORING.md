@@ -67,9 +67,9 @@ Several of the drifted features (`Age`, `MonthlyIncome`, `YearsAtCompany`, and `
 
 The model was trained on data where:
 
-* Employee ages were concentrated around 35–40 years old
-* Monthly income commonly ranged between $4,000–6,000
-* Roughly 30% of employees worked overtime
+* Employee ages had a mean of 36.9 and median of 36 (IQR: 30–43)
+* Monthly income had a median of $4,919 (IQR: $2,911–$8,379)
+* 28.3% of employees worked overtime
 
 The simulated production data no longer follows those same patterns.
 
@@ -89,11 +89,13 @@ While the exact impact would require validation on real production data, a notic
 
 ### Recommendation: Retrain on Recent Data and Continue Monitoring
 
+The `drift_threshold` in `configs/config.yaml` is set to `0.3` (30%). This means the script will automatically exit with code 1 and trigger an alert whenever more than 30% of features drift — as happened in this simulation where 50% drifted.
+
 | Scenario                                               | Recommended Action                               |
 | ------------------------------------------------------ | ------------------------------------------------ |
 | `MonthlyIncome`, `Age`, or `YearsAtCompany` show drift | **Retrain** – these are high-importance features |
 | Only lower-impact features drift                       | **Monitor** and continue collecting data         |
-| Overall drift share > 30%                              | **Retrain immediately**                          |
+| Overall drift share > 30% (exceeds `drift_threshold`)  | **Retrain immediately**                          |
 | Overall drift share 15–30%                             | **Investigate root causes**                      |
 | Overall drift share < 15%                              | **Continue monitoring**                          |
 
